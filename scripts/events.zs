@@ -20,6 +20,9 @@ import crafttweaker.potions.IPotionEffect;
 
 import mods.ctutils.utils.Math;
 
+import crafttweaker.world.IBlockPos;
+import crafttweaker.world.IFacing;
+
 events.onEntityLivingUseItemFinish(function(event as crafttweaker.event.EntityLivingUseItemEvent.Finish) {
 	if (event.isPlayer) {
 		if (event.player.world.isRemote()) {
@@ -200,7 +203,7 @@ events.onPlayerTick(function(event as crafttweaker.event.PlayerTickEvent) {
 
 	// Spirit spawning
 	if (Math.random() <= (1 / (20 * avgSpiritSpawn))) {
-		if (!spawnAtNightOnly | (spawnAtNightOnly & (!(event.player.world.isDayTime())))) {
+		if (!spawnAtNightOnly || (spawnAtNightOnly & (!(event.player.world.isDayTime())))) {
 			var spawnCount = minSpawn + (Math.random() * (maxSpawn - minSpawn + 1)) as int;
 			
 			for i in 0 to spawnCount {
@@ -214,6 +217,13 @@ events.onPlayerTick(function(event as crafttweaker.event.PlayerTickEvent) {
 			}
 		}
 	}
+
+
+    // Gas entity spawning
+    if (!isNull(event.player) && event.player.world.getBlock(event.player.position.asBlockPos().getOffset(IFacing.up(), 1)).definition.id == "adpother:gassing" && event.player.world.getWorldTime() % 10 == 0) {
+        server.commandManager.executeCommand(event.player, "summon gaspunk:gas_cloud ~ ~1 ~ {gas:\"gaspunk:choke_smoke\",max_lifespan:20,cloud_age:0}");
+        print("Spawned gas cloud");
+    }
 });
 
 events.onPlayerLoggedIn(function(event as crafttweaker.event.PlayerLoggedInEvent) {
