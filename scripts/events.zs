@@ -13,6 +13,8 @@ import crafttweaker.entity.IEntity;
 import crafttweaker.entity.IEntityEquipmentSlot;
 import crafttweaker.entity.IEntityItem;
 
+import crafttweaker.item.IItemStack;
+
 import crafttweaker.player.IPlayer;
 
 import crafttweaker.potions.IPotion;
@@ -71,18 +73,27 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 	
 	// Fix flimsy bucket on hc well
 	if (event.block.definition.id == "harvestcraft:well") {
-		var mhItem = event.player.getItemInSlot(IEntityEquipmentSlot.mainHand());
-		var ohItem = event.player.getItemInSlot(IEntityEquipmentSlot.offhand());
+		var mhItem = event.player.mainHandHeldItem;
+		var ohItem = event.player.offHandHeldItem;
 		
 		if (!isNull(mhItem) && mhItem.definition.id == "pyrotech:bucket_stone") {
-			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem.amount <= 1 ? null : mhItem.withAmount(mhItem.amount - 1));
+			mhItem.splitStack(1);
+			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem.amount < 1 ? null : mhItem);
 			event.player.give(mhItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
 		} else {
 			if (!isNull(ohItem) && ohItem.definition.id == "pyrotech:bucket_stone") {
-				event.player.setItemToSlot(IEntityEquipmentSlot.offhand(), ohItem.amount <= 1 ? null : ohItem.withAmount(ohItem.amount - 1));
+				ohItem.splitStack(1);
+				event.player.setItemToSlot(IEntityEquipmentSlot.offhand(), ohItem.amount < 1 ? null : ohItem);
 				event.player.give(ohItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
 			}
 		}
+	}
+	
+	// Place amethyst crystal
+	if (!isNull(event.player.mainHandHeldItem) && <netherex:amethyst_crystal>.definition.id == event.player.mainHandHeldItem.definition.id) {
+		var mhItem as IItemStack = event.player.mainHandHeldItem;
+		
+		// Insert IFacing code here
 	}
 });
 
