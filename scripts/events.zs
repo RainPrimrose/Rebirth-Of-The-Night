@@ -1,4 +1,5 @@
 import crafttweaker.block.IBlock;
+import crafttweaker.block.IBlockState;
 
 import crafttweaker.events.IEventManager;
 import crafttweaker.event.EntityLivingDeathEvent;
@@ -69,6 +70,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 		var poisonEffect = <potion:minecraft:poison>.makePotionEffect(40, 1) as IPotionEffect;
 		event.player.addPotionEffect(poisonEffect);
 		event.player.attackEntityFrom(<damageSource:CACTUS>, 4);
+		return;
 	}
 	
 	// Fix flimsy bucket on hc well
@@ -76,24 +78,60 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 		var mhItem = event.player.mainHandHeldItem;
 		var ohItem = event.player.offHandHeldItem;
 		
-		if (!isNull(mhItem) && mhItem.definition.id == "pyrotech:bucket_stone") {
+		if (!isNull(mhItem) && mhItem.definition == <pyrotech:bucket_stone>.definition) {
 			mhItem.splitStack(1);
-			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem.amount < 1 ? null : mhItem);
+			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mmhItem);
 			event.player.give(mhItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
 		} else {
-			if (!isNull(ohItem) && ohItem.definition.id == "pyrotech:bucket_stone") {
+			if (!isNull(ohItem) && ohItem.definition == <pyrotech:bucket_stone>.definition) {
 				ohItem.splitStack(1);
-				event.player.setItemToSlot(IEntityEquipmentSlot.offhand(), ohItem.amount < 1 ? null : ohItem);
+				event.player.setItemToSlot(IEntityEquipmentSlot.offhand(), ohItem);
 				event.player.give(ohItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
 			}
 		}
+		return;
 	}
 	
-	// Place amethyst crystal
-	if (!isNull(event.player.mainHandHeldItem) && <netherex:amethyst_crystal>.definition.id == event.player.mainHandHeldItem.definition.id) {
-		var mhItem as IItemStack = event.player.mainHandHeldItem;
-		
-		// Insert IFacing code here
+	
+	// Map of placeable items to blockstates
+	// Format is:
+	// item * amount : blockstate
+	val itemToBlock = {
+		<netherex:amethyst_crystal> * 1 : <blockstate:caves_and_cliffs:amethyst_crystal>
+	} as IBlockState[IItemStack];
+	
+	
+	var mhItem = event.player.mainHandHeldItem as IItemStack;
+	
+	if (!isNull(mhItem)) {
+		// The unfortunately lengthier way.
+		var flag = false as bool;
+		for key in itemToBlock.keys {
+			if (mhItem.definition == key.definition && mhItem.amount >= key.amount) {
+				flag = true;
+				break;
+			}
+		}
+
+		// Place items as blocks
+		if (flag) {
+			val face = event.face;
+			val pos = event.position; 					// Original position of the block
+			val blockPos = pos.getOffset(face, 1); 				// Position of block to be placed
+			val world = event.world;
+
+			val blockstate = itemToBlock[mhItem];
+			val canPlace = blockstate.block.definition.canPlaceBlockAt(world, blockPos);
+
+			if (canPlace) {
+				world.setBlockState(blockstate, blockPos);
+				
+				if (!event.player.creative) {
+					mhItem.splitStack(1);
+					event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem);
+				}
+			}
+		}
 	}
 });
 
@@ -240,7 +278,6 @@ events.onPlayerLoggedIn(function(event as crafttweaker.event.PlayerLoggedInEvent
 	}
 	
 	if ("490a8ee7-ae3e-40b0-a9c7-653024832c67" == event.player.uuid) {
-		event.player.sendChat("you have to be ready for it");
 		event.player.sendChat("you have to be ready for it");
 	}
 });
