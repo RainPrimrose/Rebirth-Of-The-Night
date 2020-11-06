@@ -97,7 +97,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 	// Format is:
 	// item * amount : blockstate
 	val itemToBlock = {
-		<netherex:amethyst_crystal> * 1 : IBlockState.getBlockState("caves_and_cliffs:amethyst_crystal")
+		<netherex:amethyst_crystal> * 1 : IBlockState.getBlockState("caves_and_cliffs:amethyst_crystal", [] as string[])
 	} as IBlockState[IItemStack];
 	
 	
