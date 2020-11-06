@@ -97,7 +97,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 	// Format is:
 	// item * amount : blockstate
 	val itemToBlock = {
-		<netherex:amethyst_crystal> * 1 : <blockstate:caves_and_cliffs:amethyst_crystal>
+		<netherex:amethyst_crystal> * 1 : IBlockState.getBlockState("caves_and_cliffs:amethyst_crystal")
 	} as IBlockState[IItemStack];
 	
 	
@@ -121,7 +121,10 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 			val world = event.world;
 
 			val blockstate = itemToBlock[mhItem];
-			val canPlace = blockstate.block.definition.canPlaceBlockAt(world, blockPos);
+			if (isNull(blockstate)) {
+				event.player.sendChat("blockstate is null :/");
+			}
+			val canPlace = blockstate.block.definition.canPlaceBlockOnSide(world, pos, face);
 
 			if (canPlace) {
 				world.setBlockState(blockstate, blockPos);
