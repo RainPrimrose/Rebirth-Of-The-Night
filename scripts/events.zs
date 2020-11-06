@@ -120,7 +120,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 			val blockPos = pos.getOffset(face, 1); 				// Position of block to be placed
 			val world = event.world;
 
-			val blockstate = itemToBlock[key];
+			val blockstate = itemToBlock[keyItem];
 			if (isNull(blockstate)) {
 				event.player.sendChat("blockstate is null :/");
 			}
@@ -130,7 +130,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 				world.setBlockState(blockstate, blockPos);
 				
 				if (!event.player.creative) {
-					mhItem.splitStack(key.amount);
+					mhItem.splitStack(keyItem.amount);
 					event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem);
 				}
 			}
