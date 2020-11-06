@@ -78,12 +78,12 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 		var mhItem = event.player.mainHandHeldItem;
 		var ohItem = event.player.offHandHeldItem;
 		
-		if (!isNull(mhItem) && mhItem.definition == <pyrotech:bucket_stone>.definition) {
+		if (!isNull(mhItem) && <pyrotech:bucket_stone>.matches(mhItem)) {
 			mhItem.splitStack(1);
-			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mmhItem);
+			event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem);
 			event.player.give(mhItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
 		} else {
-			if (!isNull(ohItem) && ohItem.definition == <pyrotech:bucket_stone>.definition) {
+			if (!isNull(ohItem) && <pyrotech:bucket_stone>.matches(ohItem)) {
 				ohItem.splitStack(1);
 				event.player.setItemToSlot(IEntityEquipmentSlot.offhand(), ohItem);
 				event.player.give(ohItem.withAmount(1).updateTag({fluids: {FluidName: "water", Amount: 1000}}));
@@ -107,7 +107,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 		// The unfortunately lengthier way.
 		var flag = false as bool;
 		for key in itemToBlock.keys {
-			if (mhItem.definition == key.definition && mhItem.amount >= key.amount) {
+			if (mhItem.definition.id == key.definition.id && mhItem.metadata == key.metadata && mhItem.amount >= key.amount) {
 				flag = true;
 				break;
 			}
