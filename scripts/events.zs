@@ -105,22 +105,22 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 	
 	if (!isNull(mhItem)) {
 		// The unfortunately lengthier way.
-		var flag = false as bool;
-		for key in itemToBlock.keys {
+		var keyItem = null as IItemStack;
+		for key in itemToBlock {
 			if (mhItem.definition.id == key.definition.id && mhItem.metadata == key.metadata && mhItem.amount >= key.amount) {
-				flag = true;
+				keyItem = key;
 				break;
 			}
 		}
 
 		// Place items as blocks
-		if (flag) {
+		if (!isNull(keyItem)) {
 			val face = event.face;
 			val pos = event.position; 					// Original position of the block
 			val blockPos = pos.getOffset(face, 1); 				// Position of block to be placed
 			val world = event.world;
 
-			val blockstate = itemToBlock[mhItem];
+			val blockstate = itemToBlock[key];
 			if (isNull(blockstate)) {
 				event.player.sendChat("blockstate is null :/");
 			}
@@ -130,7 +130,7 @@ events.onPlayerInteractBlock(function(event as crafttweaker.event.PlayerInteract
 				world.setBlockState(blockstate, blockPos);
 				
 				if (!event.player.creative) {
-					mhItem.splitStack(1);
+					mhItem.splitStack(key.amount);
 					event.player.setItemToSlot(IEntityEquipmentSlot.mainHand(), mhItem);
 				}
 			}
